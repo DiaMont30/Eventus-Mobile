@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { eventoService, type EventoRequest, type EventoResponse } from '../services/eventoService';
-import { EventItem } from '../components/cards/EventCard';
+import { eventoService } from '../services/eventoService';
+import { EventItem, EventoRequestDTO, EventoResponseDTO } from '../types/evento';
 
 export function useEvents() {
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -19,7 +19,7 @@ export function useEvents() {
         ? await eventoService.listarPorAdmin(Number(adminIdStr), currentPage, pageSize) 
         : await eventoService.listarTodos(currentPage, pageSize);
 
-      const formatted: EventItem[] = pageData.content.map((ev: EventoResponse) => ({
+      const formatted: EventItem[] = pageData.content.map((ev: EventoResponseDTO) => ({
         id: ev.id,
         title: ev.nome,
         date: ev.data ? ev.data.split("T")[0] : "",
@@ -55,7 +55,7 @@ export function useEvents() {
   }, [fetchEvents]);
 
   const updateEvent = useCallback(async (id: number | string, updates: Partial<EventItem>) => {
-    const patchData: Partial<EventoRequest> = {};
+    const patchData: Partial<EventoRequestDTO> = {};
 
     if (updates.date) {
       patchData.data = updates.date.includes("T") ? updates.date : `${updates.date}T10:00:00`;
@@ -73,5 +73,5 @@ export function useEvents() {
     setEvents((prev) => prev.filter((e) => e.id !== id));
   }, []);
 
-  return { events, isLoading, addEvent, updateEvent, deleteEvent };
+  return { events, isLoading, addEvent, updateEvent, deleteEvent, refresh: fetchEvents };
 }
