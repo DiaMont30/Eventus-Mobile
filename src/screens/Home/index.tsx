@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -7,39 +7,62 @@ import {
   ActivityIndicator,
   RefreshControl,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useEvents } from "../../hooks/useEvents";
-import { EventCard, type EventItem } from "../../components/cards/EventCard";
+
+import { EventCard } from "../../components/cards/EventCard";
 import { Button } from "../../components/ui/Button";
+import { EventItem } from "../../types/evento";
 
 export default function Home({ navigation }: any) {
   const { colors } = useTheme();
   const { adminName, signOut } = useAuth();
-  const { events, isLoading, deleteEvent } = useEvents();
 
+  // Consumindo nosso hook que espelha exatamente a lógica Web!
+  const { events, isLoading, deleteEvent, refresh } = useEvents();
   const [refreshing, setRefreshing] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
-  }, []);
+    await refresh();
+    setRefreshing(false);
+  }, [refresh]);
 
   const handleEdit = (event: EventItem) => {
-    console.log("Editar evento:", event.id);
+    navigation.navigate("EditarEvento", { event });
   };
 
-  const handleDelete = async (id: number | string) => {
-    try {
-      await deleteEvent(id);
-    } catch (error) {
-      console.error("Erro ao deletar evento:", error);
-    }
+  const handleDelete = (id: number | string) => {
+    Alert.alert(
+      "Excluir Evento",
+      "Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteEvent(id);
+            } catch (error) {
+              Alert.alert("Erro", "Não foi possível excluir o evento.");
+            }
+          },
+        },
+      ],
+    );
   };
 
   const firstName = adminName ? adminName.split(" ")[0] : "Admin";
@@ -56,38 +79,58 @@ export default function Home({ navigation }: any) {
             </Text>
           </View>
           <View>
-            <Text style={[styles.welcomeText, { color: colors.text + "99" }]}>
-              Bem-vindo,
-            </Text>
+            <View style={styles.tagContainer}>
+              <View
+                style={[styles.tagDot, { backgroundColor: colors.primary }]}
+              />
+              <Text style={[styles.tagText, { color: colors.primary }]}>
+                ADMINISTRADOR
+              </Text>
+            </View>
             <Text style={[styles.nameText, { color: colors.text }]}>
               {firstName}
             </Text>
           </View>
         </View>
 
-        <View style={styles.headerActions}>
-          <Button
-            title="Sair"
-            variant="outline"
-            onPress={signOut}
-            style={styles.logoutButton}
-          />
-        </View>
+        <Button
+          title=""
+          variant="outline"
+          onPress={signOut}
+          style={styles.logoutButton}
+        >
+          <Ionicons name="log-out-outline" size={20} color={colors.text} />
+        </Button>
       </View>
 
       <View style={styles.content}>
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Meus Eventos
-          </Text>
-          <Text style={[styles.counterText, { color: colors.primary }]}>
-            {events.length} encontrados
-          </Text>
+          <View>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Meus Eventos
+            </Text>
+            <Text style={[styles.counterText, { color: colors.text + "80" }]}>
+              {events.length} evento{events.length !== 1 ? "s" : ""} cadastrado
+              {events.length !== 1 ? "s" : ""}
+            </Text>
+          </View>
+
+          <Button
+            title="Novo"
+            onPress={() => navigation.navigate("CadastroEvento")}
+            style={styles.addButton}
+          >
+            <Ionicons name="add" size={20} color="#fff" />
+          </Button>
         </View>
 
+        {/* Listagem */}
         {isLoading && !refreshing ? (
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={[styles.loaderText, { color: colors.text + "80" }]}>
+              Carregando eventos...
+            </Text>
           </View>
         ) : (
           <FlatList
@@ -118,8 +161,14 @@ export default function Home({ navigation }: any) {
                   color={colors.text + "50"}
                 />
                 <Text style={[styles.emptyText, { color: colors.text + "99" }]}>
-                  Nenhum evento cadastrado no momento.
+                  Nenhum evento cadastrado.
                 </Text>
+                <Button
+                  title="Criar o primeiro"
+                  variant="outline"
+                  onPress={() => navigation.navigate("CadastroEvento")}
+                  style={{ marginTop: 16 }}
+                />
               </View>
             }
           />
@@ -130,9 +179,7 @@ export default function Home({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -141,72 +188,54 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
   },
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
+  userInfo: { flexDirection: "row", alignItems: "center", gap: 12 },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    fontSize: 16,
+  avatarText: { color: "#FFFFFF", fontWeight: "bold", fontSize: 18 },
+  tagContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 2,
   },
-  welcomeText: {
-    fontSize: 12,
-  },
-  nameText: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  headerActions: {
-    width: 80,
-  },
+  tagDot: { width: 6, height: 6, borderRadius: 3 },
+  tagText: { fontSize: 10, fontWeight: "bold", letterSpacing: 1 },
+  nameText: { fontSize: 18, fontWeight: "bold" },
   logoutButton: {
-    height: 36,
-    marginBottom: 0,
+    width: 44,
+    height: 44,
+    padding: 0,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
+  content: { flex: 1, paddingHorizontal: 20, paddingTop: 20 },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  counterText: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  listContainer: {
-    paddingBottom: 24,
-  },
+  sectionTitle: { fontSize: 24, fontWeight: "bold" },
+  counterText: { fontSize: 14, marginTop: 4 },
+  addButton: { paddingHorizontal: 16, height: 44 },
+  listContainer: { paddingBottom: 24 },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    gap: 12,
   },
+  loaderText: { fontSize: 14 },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
     marginTop: 60,
     gap: 12,
   },
-  emptyText: {
-    fontSize: 14,
-    textAlign: "center",
-  },
+  emptyText: { fontSize: 16, textAlign: "center" },
 });
