@@ -1,39 +1,19 @@
+import { AdministradorResponseDTO, LoginRequestDTO, RegisterRequestDTO, TokenResponseDTO } from "../types/auth";
 import { apiPrivate, apiPublic } from "./api";
 
-export interface LoginPayload {
-  email: string;
-  senha: string;
-}
-
-export interface RegisterPayload {
-  nome: string;
-  email: string;
-  senha: string;
-}
-
-export interface TokenResponse {
-  token: string;
-}
-
-export interface AdministradorResponse {
-  id: number;
-  nome: string;
-  email: string;
-}
-
 export const authService = {
-  async login(credentials: LoginPayload): Promise<TokenResponse> {
-    const response = await apiPublic.post<TokenResponse>('/api/auth/login', credentials);
+  async login(credentials: LoginRequestDTO): Promise<TokenResponseDTO> {
+    const response = await apiPublic.post<TokenResponseDTO>('/api/auth/login', credentials);
     return response.data;
   },
 
-  async register(data: RegisterPayload): Promise<AdministradorResponse> {
-    const response = await apiPublic.post<AdministradorResponse>('/api/administradores/cadastrar', data);
+  async register(data: RegisterRequestDTO): Promise<AdministradorResponseDTO> {
+    const response = await apiPublic.post<AdministradorResponseDTO>('/api/administradores/cadastrar', data);
     return response.data;
   },
 
-  async getProfile(): Promise<AdministradorResponse> {
-    const response = await apiPrivate.get<AdministradorResponse>('/api/administradores/me');
+  async getProfile(): Promise<AdministradorResponseDTO> {
+    const response = await apiPrivate.get<AdministradorResponseDTO>('/api/administradores/me');
     return response.data;
   }
 };

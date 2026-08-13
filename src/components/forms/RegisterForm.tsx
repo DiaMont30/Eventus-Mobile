@@ -1,0 +1,118 @@
+import React, { useState } from "react";
+import { View, StyleSheet, Alert } from "react-native";
+import { useForm, Controller } from "react-hook-form";
+
+import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
+import { authService } from "../../services/authService";
+
+interface RegisterFormProps {
+  onSuccess: () => void;
+}
+
+export function RegisterForm({ onSuccess }: RegisterFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      nome: "",
+      email: "",
+      senha: "",
+    },
+  });
+
+  const onSubmit = async (data: any) => {
+    setIsLoading(true);
+    try {
+      await authService.register(data);
+      Alert.alert(
+        "Sucesso!",
+        "Conta criada com sucesso. Você já pode fazer login.",
+      );
+      onSuccess();
+    } catch (error) {
+      console.error("Erro no cadastro:", error);
+      Alert.alert(
+        "Erro",
+        "Não foi possível criar a conta. Verifique os dados e tente novamente.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.formContainer}>
+      <Controller
+        control={control}
+        name="nome"
+        rules={{ required: "O nome é obrigatório" }}
+        render={({ field: { onChange, value } }) => (
+          <Input
+            label="Nome Completo"
+            placeholder="Ex: Maria Silva"
+            value={value}
+            onChangeText={onChange}
+            error={errors.nome?.message}
+            disabled={isLoading}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="email"
+        rules={{ required: "O email é obrigatório" }}
+        render={({ field: { onChange, value } }) => (
+          <Input
+            label="Email"
+            placeholder="maria@exemplo.com"
+            value={value}
+            onChangeText={onChange}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            error={errors.email?.message}
+            disabled={isLoading}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="senha"
+        rules={{
+          required: "A senha é obrigatória",
+          minLength: { value: 6, message: "Mínimo de 6 caracteres" },
+        }}
+        render={({ field: { onChange, value } }) => (
+          <Input
+            label="Senha"
+            placeholder="••••••••"
+            value={value}
+            onChangeText={onChange}
+            isPassword
+            error={errors.senha?.message}
+            disabled={isLoading}
+          />
+        )}
+      />
+
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Criar Conta"
+          onPress={handleSubmit(onSubmit)}
+          isLoading={isLoading}
+        />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  formContainer: { gap: 4 },
+  buttonContainer: { marginTop: 16 },
+});

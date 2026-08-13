@@ -1,36 +1,59 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 import { ActivityIndicator, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
+import { ThemeProvider, useTheme } from "./src/contexts/ThemeContext";
 import Login from "./src/screens/Login";
-import { ThemeProvider } from "./src/contexts/ThemeContext";
+import CadastroUsuario from "./src/screens/CadastroUsuario";
 import Home from "./src/screens/Home";
+import CadastroEvento from "./src/screens/CadastroEvento";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
-function AppRoutes() {
+function Routes() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { colors } = useTheme();
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <Stack.Screen name="Home" component={Home} />
-        ) : (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {!isAuthenticated ? (
+        <Stack.Group>
           <Stack.Screen name="Login" component={Login} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+          <Stack.Screen name="CadastroUsuario" component={CadastroUsuario} />
+        </Stack.Group>
+      ) : (
+        <Stack.Group>
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen
+            name="CadastroEvento"
+            component={CadastroEvento}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="EditarEvento"
+            component={CadastroEvento}
+            options={{ presentation: "modal" }}
+          />
+        </Stack.Group>
+      )}
+    </Stack.Navigator>
   );
 }
 
@@ -38,7 +61,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppRoutes />
+        <NavigationContainer>
+          <Routes />
+        </NavigationContainer>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -9,6 +9,7 @@ import type { EventFormData, EventoRequestDTO } from "../../types/evento";
 
 interface EventFormProps {
   initialData?: EventFormData;
+  isEditing?: boolean;
   onSubmit: (data: EventoRequestDTO) => Promise<void>;
   onCancel: () => void;
   adminId: number;
@@ -16,6 +17,7 @@ interface EventFormProps {
 
 export function EventForm({
   initialData,
+  isEditing = false,
   onSubmit,
   onCancel,
   adminId,
@@ -57,15 +59,15 @@ export function EventForm({
       <Controller
         control={control}
         name="nome"
-        rules={{ required: "O nome é obrigatório" }}
+        rules={{ required: "O título é obrigatório" }}
         render={({ field: { onChange, value } }) => (
           <Input
-            label="Nome do Evento"
+            label="Título do Evento"
             placeholder="Ex: Conferência Tech"
             value={value}
             onChangeText={(text: string) => onChange(text)}
             error={errors.nome?.message}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isEditing}
           />
         )}
       />
