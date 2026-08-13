@@ -13,9 +13,17 @@ import { Ionicons } from "@expo/vector-icons";
 interface InputProps extends TextInputProps {
   label: string;
   isPassword?: boolean;
+  error?: string;
+  disabled?: boolean;
 }
 
-export function Input({ label, isPassword, ...rest }: InputProps) {
+export function Input({
+  label,
+  isPassword,
+  error,
+  disabled,
+  ...rest
+}: InputProps) {
   const { colors } = useTheme();
   const [isPasswordVisible, setIsPasswordVisible] = useState(!isPassword);
 
@@ -25,12 +33,17 @@ export function Input({ label, isPassword, ...rest }: InputProps) {
       <View
         style={[
           styles.inputContainer,
-          { backgroundColor: colors.inputBg, borderColor: colors.inputBorder },
+          {
+            backgroundColor: colors.inputBg,
+            borderColor: error ? "red" : colors.inputBorder,
+          },
+          disabled && { opacity: 0.5 },
         ]}
       >
         <TextInput
           style={[styles.input, { color: colors.text }]}
           placeholderTextColor={colors.text + "80"}
+          editable={!disabled}
           secureTextEntry={isPassword && !isPasswordVisible}
           {...rest}
         />
@@ -46,6 +59,7 @@ export function Input({ label, isPassword, ...rest }: InputProps) {
             />
           </TouchableOpacity>
         )}
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </View>
     </View>
   );
@@ -77,5 +91,10 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: 4,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 4,
   },
 });

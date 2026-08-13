@@ -11,7 +11,8 @@ interface AuthContextData {
   isAuthenticated: boolean;
   isLoading: boolean;
   adminName: string | null;
-  signIn: (token: string, adminId: string, adminName: string) => Promise<void>;
+  adminId: number | null;
+  signIn: (token: string, adminId: number, adminName: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -21,15 +22,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [adminName, setAdminName] = useState<string | null>(null);
+  const [adminId, setAdminId] = useState<number | null>(null);
 
   useEffect(() => {
     async function loadStorageData() {
       try {
         const token = await AsyncStorage.getItem("eventus_token");
         const name = await AsyncStorage.getItem("eventus_admin_name");
+        const idStr = await AsyncStorage.getItem("eventus_admin_id");
         if (token) {
           setIsAuthenticated(true);
           setAdminName(name);
+          setAdminId(idStr ? Number(idStr) : null);
         }
       } catch (error) {
         console.error("Erro ao ler token:", error);
@@ -40,14 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadStorageData();
   }, []);
 
-  const signIn = async (token: string, adminId: string, adminName: string) => {
+  const signIn = async (token: string, adminId: number, adminName: string) => {
     await AsyncStorage.multiSet([
       ["eventus_token", token],
-      ["eventus_admin_id", adminId],
+      ["eventus_admin_id", adminId.toString()],
       ["eventus_admin_name", adminName],
     ]);
     setIsAuthenticated(true);
     setAdminName(adminName);
+    setAdminId(adminId);
   };
 
   const signOut = async () => {
@@ -58,11 +63,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ]);
     setIsAuthenticated(false);
     setAdminName(null);
+    setAdminId(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, adminName, signIn, signOut }}
+      value={{
+        isAuthenticated,
+        isLoading,
+        adminName,
+        signIn,
+        signOut,
+        adminId,
+      }}
     >
       {children}
     </AuthContext.Provider>

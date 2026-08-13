@@ -9,29 +9,15 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
-
-export interface EventItem {
-  id: number | string;
-  title: string;
-  date: string;
-  location: string;
-  image: string;
-}
-
-interface EventCardProps {
+import { EventItem } from "../../types/evento";
+export interface EventCardProps {
   event: EventItem;
   index: number;
   onEdit: (event: EventItem) => void;
   onDelete: (id: number | string) => void;
 }
 
-const CARD_ACCENTS = [
-  "#8B5CF6", // Violet
-  "#EC4899", // Pink
-  "#06B6D4", // Cyan
-  "#F59E0B", // Amber
-  "#10B981", // Emerald
-];
+const CARD_ACCENTS = ["#8B5CF6", "#EC4899", "#06B6D4", "#F59E0B", "#10B981"];
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr + "T12:00:00");
@@ -135,8 +121,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     marginBottom: 16,
-    elevation: 3, // Sombra para Android
-    shadowColor: "#000", // Sombras para iOS
+    elevation: 3,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
