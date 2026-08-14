@@ -9,6 +9,7 @@ import Login from "./src/screens/Login";
 import CadastroUsuario from "./src/screens/CadastroUsuario";
 import Home from "./src/screens/Home";
 import CadastroEvento from "./src/screens/CadastroEvento";
+import EditarEvento from "./src/screens/EditarEvento";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,7 +49,7 @@ function Routes() {
           />
           <Stack.Screen
             name="EditarEvento"
-            component={CadastroEvento}
+            component={EditarEvento}
             options={{ presentation: "modal" }}
           />
         </Stack.Group>

@@ -9,7 +9,15 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
-import { EventItem } from "../../types/evento";
+
+export interface EventItem {
+  id: number | string;
+  title: string;
+  date: string;
+  location: string;
+  image: string;
+}
+
 export interface EventCardProps {
   event: EventItem;
   index: number;
@@ -64,7 +72,7 @@ export function EventCard({ event, index, onEdit, onDelete }: EventCardProps) {
             style={[
               styles.actionButton,
               { backgroundColor: colors.inputBg + "E6" },
-            ]} // E6 adiciona transparência
+            ]}
             onPress={() => onEdit(event)}
             activeOpacity={0.7}
           >

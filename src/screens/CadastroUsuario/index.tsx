@@ -8,12 +8,14 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useTheme } from "../../contexts/ThemeContext";
 import { Button } from "../../components/ui/Button";
 import { RegisterForm } from "../../components/forms/RegisterForm";
+import { ThemeToggle } from "../../components/ui/ThemeToggle";
 
 export default function CadastroUsuario({ navigation }: any) {
   const { colors } = useTheme();
@@ -32,18 +34,16 @@ export default function CadastroUsuario({ navigation }: any) {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Button
-              title=""
-              variant="outline"
+            <TouchableOpacity
               onPress={() => navigation.goBack()}
-              style={styles.backButton}
+              style={[styles.backButton, { borderColor: colors.inputBorder }]}
             >
-              <Ionicons name="arrow-back" size={20} color={colors.text} />
-            </Button>
+              <Ionicons name="arrow-back" size={24} color={colors.text} />
+            </TouchableOpacity>
             <Text style={[styles.title, { color: colors.primary }]}>
               ✨ Eventus
             </Text>
-            <View style={{ width: 40 }} />
+            <ThemeToggle />
           </View>
 
           <View style={styles.badgeContainer}>
@@ -88,7 +88,8 @@ const styles = StyleSheet.create({
   backButton: {
     width: 40,
     height: 40,
-    padding: 0,
+    borderRadius: 8,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
