@@ -1,11 +1,19 @@
 import React, { useState } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
+import { useTheme } from "../../contexts/ThemeContext";
 
-import type { EventFormData, EventoRequestDTO } from "../../types/evento";
+import type { EventoRequestDTO } from "../../types/evento";
+import { ImageUploadBox } from "../ui/ImageUploadBox";
+
+export interface EventFormData {
+  nome: string;
+  data: string;
+  localizacao: string;
+  imagem?: string;
+}
 
 interface EventFormProps {
   initialData?: EventFormData;
@@ -22,6 +30,7 @@ export function EventForm({
   onCancel,
   adminId,
 }: EventFormProps) {
+  const { colors } = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -29,6 +38,7 @@ export function EventForm({
     handleSubmit,
     formState: { errors },
   } = useForm<EventFormData>({
+    values: initialData,
     defaultValues: initialData || {
       nome: "",
       data: "",
@@ -56,14 +66,41 @@ export function EventForm({
 
   return (
     <View style={styles.formContainer}>
+      {!isEditing && (
+        <View style={styles.imageSection}>
+          <Text style={[styles.sectionLabel, { color: colors.text + "90" }]}>
+            IMAGEM DO EVENTO
+          </Text>
+
+          <Controller
+            control={control}
+            name="imagem"
+            render={({ field: { onChange, value } }) => (
+              <View>
+                <ImageUploadBox />
+                <Input
+                  label=""
+                  placeholder="Ou cole a URL da imagem aqui..."
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.imagem?.message}
+                  disabled={isSubmitting}
+                  style={{ marginTop: 8 }}
+                />
+              </View>
+            )}
+          />
+        </View>
+      )}
+
       <Controller
         control={control}
         name="nome"
         rules={{ required: "O título é obrigatório" }}
         render={({ field: { onChange, value } }) => (
           <Input
-            label="Título do Evento"
-            placeholder="Ex: Conferência Tech"
+            label="TÍTULO DO EVENTO"
+            placeholder="Ex: Festival de Música"
             value={value}
             onChangeText={(text: string) => onChange(text)}
             error={errors.nome?.message}
@@ -78,8 +115,8 @@ export function EventForm({
         rules={{ required: "A data é obrigatória" }}
         render={({ field: { onChange, value } }) => (
           <Input
-            label="Data"
-            placeholder="AAAA-MM-DD"
+            label="DATA"
+            placeholder="dd/mm/aaaa"
             value={value}
             onChangeText={(text: string) => onChange(text)}
             error={errors.data?.message}
@@ -94,8 +131,8 @@ export function EventForm({
         rules={{ required: "O local é obrigatório" }}
         render={({ field: { onChange, value } }) => (
           <Input
-            label="Local"
-            placeholder="Ex: Centro de Convenções"
+            label="LOCALIZAÇÃO"
+            placeholder="Ex: Parque Ibirapuera, São Paulo"
             value={value}
             onChangeText={(text: string) => onChange(text)}
             error={errors.localizacao?.message}
@@ -113,7 +150,7 @@ export function EventForm({
           style={styles.cancelButton}
         />
         <Button
-          title={initialData ? "Atualizar" : "Salvar"}
+          title={isEditing ? "Atualizar Evento" : "Salvar Evento"}
           onPress={handleSubmit(handleFormSubmit)}
           isLoading={isSubmitting}
           style={styles.submitButton}
@@ -126,6 +163,35 @@ export function EventForm({
 const styles = StyleSheet.create({
   formContainer: {
     gap: 16,
+  },
+  imageSection: {
+    marginBottom: 8,
+  },
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  imageUploadBox: {
+    height: 140,
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  uploadText: {
+    fontSize: 14,
+    fontWeight: "500",
   },
   buttonGroup: {
     flexDirection: "row",

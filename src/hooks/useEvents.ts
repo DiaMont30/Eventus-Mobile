@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { eventoService } from '../services/eventoService';
-import { EventItem, EventoRequestDTO, EventoResponseDTO } from '../types/evento';
+import {  EventoRequestDTO, EventoResponseDTO } from '../types/evento';
+import { EventItem } from '../components/cards/EventCard';
 
 export function useEvents() {
   const [events, setEvents] = useState<EventItem[]>([]);

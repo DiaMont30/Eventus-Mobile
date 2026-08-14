@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -58,14 +59,12 @@ export default function CadastroEvento({ navigation }: any) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Button
-            title=""
-            variant="outline"
+          <TouchableOpacity
             onPress={() => navigation.goBack()}
-            style={styles.backButton}
+            style={[styles.backButton, { borderColor: colors.inputBorder }]}
           >
-            <Ionicons name="arrow-back" size={20} color={colors.text} />
-          </Button>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
           <Text style={[styles.title, { color: colors.text }]}>
             Novo Evento
           </Text>
@@ -99,7 +98,8 @@ const styles = StyleSheet.create({
   backButton: {
     width: 40,
     height: 40,
-    padding: 0,
+    borderRadius: 8,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },

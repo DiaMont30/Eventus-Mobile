@@ -6,9 +6,10 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  SafeAreaView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -16,15 +17,14 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useEvents } from "../../hooks/useEvents";
 
-import { EventCard } from "../../components/cards/EventCard";
+import { EventCard, EventItem } from "../../components/cards/EventCard";
 import { Button } from "../../components/ui/Button";
-import { EventItem } from "../../types/evento";
+import { ThemeToggle } from "../../components/ui/ThemeToggle";
 
 export default function Home({ navigation }: any) {
   const { colors } = useTheme();
   const { adminName, signOut } = useAuth();
 
-  // Consumindo nosso hook que espelha exatamente a lógica Web!
   const { events, isLoading, deleteEvent, refresh } = useEvents();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -93,14 +93,13 @@ export default function Home({ navigation }: any) {
           </View>
         </View>
 
-        <Button
-          title=""
-          variant="outline"
-          onPress={signOut}
-          style={styles.logoutButton}
-        >
-          <Ionicons name="log-out-outline" size={20} color={colors.text} />
-        </Button>
+        <View style={styles.headerActions}>
+          <ThemeToggle />
+
+          <TouchableOpacity onPress={signOut} style={styles.logoutButton}>
+            <Ionicons name="log-out-outline" size={24} color={colors.text} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.content}>
@@ -116,7 +115,7 @@ export default function Home({ navigation }: any) {
           </View>
 
           <Button
-            title="Novo"
+            title="+ Evento"
             onPress={() => navigation.navigate("CadastroEvento")}
             style={styles.addButton}
           >
@@ -124,7 +123,6 @@ export default function Home({ navigation }: any) {
           </Button>
         </View>
 
-        {/* Listagem */}
         {isLoading && !refreshing ? (
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
@@ -206,6 +204,7 @@ const styles = StyleSheet.create({
   tagDot: { width: 6, height: 6, borderRadius: 3 },
   tagText: { fontSize: 10, fontWeight: "bold", letterSpacing: 1 },
   nameText: { fontSize: 18, fontWeight: "bold" },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   logoutButton: {
     width: 44,
     height: 44,

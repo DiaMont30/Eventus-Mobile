@@ -5,6 +5,12 @@ import { useForm, Controller } from "react-hook-form";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { authService } from "../../services/authService";
+interface RegisterFormData {
+  nome: string;
+  email: string;
+  senha: string;
+  confirmarSenha: string;
+}
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -16,19 +22,23 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const {
     control,
     handleSubmit,
+    getValues,
     formState: { errors },
-  } = useForm({
+  } = useForm<RegisterFormData>({
     defaultValues: {
       nome: "",
       email: "",
       senha: "",
+      confirmarSenha: "",
     },
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      await authService.register(data);
+      const { confirmarSenha, ...payload } = data;
+
+      await authService.register(payload);
       Alert.alert(
         "Sucesso!",
         "Conta criada com sucesso. Você já pode fazer login.",
@@ -96,6 +106,27 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             onChangeText={onChange}
             isPassword
             error={errors.senha?.message}
+            disabled={isLoading}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="confirmarSenha"
+        rules={{
+          required: "A confirmação de senha é obrigatória",
+          validate: (value) =>
+            value === getValues("senha") || "As senhas não coincidem", // <--- A mágica da validação acontece aqui
+        }}
+        render={({ field: { onChange, value } }) => (
+          <Input
+            label="Confirmar Senha"
+            placeholder="••••••••"
+            value={value}
+            onChangeText={onChange}
+            isPassword
+            error={errors.confirmarSenha?.message}
             disabled={isLoading}
           />
         )}
