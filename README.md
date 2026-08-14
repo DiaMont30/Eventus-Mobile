@@ -17,7 +17,7 @@ Com ele, é possível:
 
 - 🧑‍💻 Criar uma conta e realizar login como administrador.
 - 📅 Listar eventos cadastrados com paginação e atualização por *pull-to-refresh*.
-- ➕ Cadastrar novos eventos (nome, data, localização e imagem).
+- ➕ Cadastrar novos eventos com **seletor de data nativo** e **upload de imagem da galeria** (nome, data, localização e imagem).
 - ✏️ Editar e 🗑️ excluir eventos existentes.
 - 🌙 Alternar entre tema claro e escuro.
 
@@ -37,6 +37,8 @@ O projeto consome uma **API REST** (Spring Boot) e foi construído pensando em c
 | React Hook Form     | ^7.85.0   | Validação e gerenciamento de formulários|
 | Axios               | ^1.19.0   | Requisições HTTP à API                  |
 | Async Storage       | 2.2.0     | Persistência do token de autenticação   |
+| Date Time Picker    | 8.4.4     | Seletor de data nativo (Android/iOS)    |
+| Expo Image Picker   | ~17.0.11  | Seleção de imagens da galeria           |
 
 ---
 
