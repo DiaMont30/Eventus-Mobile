@@ -4,9 +4,9 @@ import { useForm, Controller } from "react-hook-form";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { useTheme } from "../../contexts/ThemeContext";
-
 import type { EventoRequestDTO } from "../../types/evento";
 import { ImageUploadBox } from "../ui/ImageUploadBox";
+import { DatePickerInput } from "../ui/DatePickerInput";
 
 export interface EventFormData {
   nome: string;
@@ -32,6 +32,7 @@ export function EventForm({
 }: EventFormProps) {
   const { colors } = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const {
     control,
@@ -77,16 +78,7 @@ export function EventForm({
             name="imagem"
             render={({ field: { onChange, value } }) => (
               <View>
-                <ImageUploadBox />
-                <Input
-                  label=""
-                  placeholder="Ou cole a URL da imagem aqui..."
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.imagem?.message}
-                  disabled={isSubmitting}
-                  style={{ marginTop: 8 }}
-                />
+                <ImageUploadBox onChange={onChange} />
               </View>
             )}
           />
@@ -114,11 +106,10 @@ export function EventForm({
         name="data"
         rules={{ required: "A data é obrigatória" }}
         render={({ field: { onChange, value } }) => (
-          <Input
+          <DatePickerInput
             label="DATA"
-            placeholder="dd/mm/aaaa"
             value={value}
-            onChangeText={(text: string) => onChange(text)}
+            onChange={onChange}
             error={errors.data?.message}
             disabled={isSubmitting}
           />
